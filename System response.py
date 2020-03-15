@@ -6,7 +6,7 @@ import numpy as np
 import control.matlab as ml
 import control
 import matplotlib.pyplot as plt
-from flight_conditions import FlightParams
+from flight_conditions import *
 
 
 def plot_params(t, ys) -> None:
@@ -65,7 +65,7 @@ def sym_flight(ac: FlightParams):
     return ml.ss(As , Bs , Cs , Ds)
 
 
-def asym_flight(ac: FlightParams) -> None:
+def asym_flight(ac: FlightParams):
     # Construct the asymmetric flight state-space system for an aircraft
     C1a =np.matrix([[(ac.CYbdot-2*ac.mub), 0 , 0 , 0],
                    [0 , -1/2*ac.b/ac.V0, 0 , 0],
@@ -94,7 +94,7 @@ def asym_flight(ac: FlightParams) -> None:
 
 if __name__ == "__main__":
     # Define flying aircraft with default parameters
-    aircraft = FlightParams()
+    aircraft = FlightParams(m=1000)
 
     # For symmetric flight
     syss = sym_flight(aircraft)
