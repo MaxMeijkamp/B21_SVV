@@ -18,7 +18,7 @@ def correct_speed(velocity):
                           263, 268, 273, 275])
     multipliers = tableKCAS/tableKIAS
     multipl_func = cont_spline(tableKIAS, multipliers)
-    return velocity * multipl_func(velocity)[0]
+    return velocity * multipl_func(velocity).item()
 
 
 def correct_mach(mach):
@@ -27,7 +27,7 @@ def correct_mach(mach):
     table_cal_M = np.append(np.linspace(0.393, 0.693, 31), 0.698)
     multipliers = table_cal_M/table_ind_M
     multipl_func = cont_spline(table_ind_M, multipliers)
-    return mach * multipl_func(mach)[0]
+    return mach * multipl_func(mach).item()
 
 
 def ISA_calculator(h, R=287.058, g=9.80665):
