@@ -67,44 +67,49 @@ def ISA_calculator(h, R=287.058, g=9.80665):
 
 
 class AtmosConditions():
-    def __init__(self, m = 4000, hp=1000, V0=200, p0=101325, rho0=1.225, T0=288.15, g=9.80665, R=287.058):
+    def __init__(self, m = 4000, Ws=60500, hp=1000, V0=200, p0=101325, rho0=1.225, T0=288.15, g=9.80665, R=287.058):
         """Class containing all atmospheric properties of the flight conditions. Changeable parameters are parameters
         ending with a 0. The class automatically updates all other flight parameters. """
         self.gamma = 1.4
         self.g = g
         self.R = R
         self._m = m
-        self._ms = self.m
         self._W = m * g
-        self._Ws = self._W
+        self._Ws = Ws
         self._V0 = correct_speed(V0)
         self._p0 = p0
         self._rho0 = rho0
         self._T0 = T0
         self._hp = hp
         self._renew_parameters()
+        self._observers = []
+
+    def bind_observer(self, cb):
+        self._observers.append(cb)
 
     def _renew_parameters(self):
         # Updates all relevant flight parameters based on the ISA atmosphere and mach and weight corrections.
         self._p, self._rho, self._T = ISA_calculator(self._hp)
         self._M = self._getMach()
         self._T = self._correctT()
-        self._V = self._correctV()
         self.a = np.sqrt(self.gamma * self.R * self._T)
+        self._V = self._correctV(self._M*self.a)
+        for obs in self._observers:
+            obs()
         return
 
     def _getMach(self):
-        # Returns the mach number for the given flight conditions
+        # Returns the mach number for the given flight conditions.
         return np.sqrt((2 / (self.gamma - 1)) * ((1 + (self._p0 / self._p) * ((1 + ((self.gamma - 1) * self._rho0 * self._V0 * self._V0) /
                                                                                (2 * self.gamma * self._p0)) ** (self.gamma / (self.gamma - 1)) - 1)) ** ((self.gamma - 1) / self.gamma) - 1))
 
     def _correctT(self):
-        # Returns corrected temperature for ram rise
+        # Returns corrected temperature for ram rise.
         return self._T0/(1 + 0.5 * self._M * self._M * (self.gamma - 1))
 
-    def _correctV(self):
-        # Returns equivalent airspeed, TODO: implement weight correction
-        return self._V0*np.sqrt(self._rho/self._rho0)
+    def _correctV(self, speed):
+        # Returns equivalent airspeed, corrected for atmospheric differences and weight differences.
+        return speed*np.sqrt(self._rho/self._rho0)*np.sqrt(self._Ws/self._W)
 
     @property
     def m(self):
@@ -112,11 +117,11 @@ class AtmosConditions():
 
     @property
     def W(self):
-        return self._m*self.g
+        return self._W
 
     @property
     def Ws(self):
-        return self._ms*self.g
+        return self._Ws
 
     @property
     def V0(self):
@@ -160,12 +165,21 @@ class AtmosConditions():
 
     @m.setter
     def m(self, value):
-        self._m=value
+        self._m = value
+        self._W = value * self.g
         self._renew_parameters()
 
     @W.setter
     def W(self, value):
-        self._W=value
+        self._W = value
+        self._m = value / self.g
+        self._V = self._correctV(self._M*self.a)
+        for obs in self._observers:
+            obs()
+
+    @Ws.setter
+    def Ws(self, value):
+        self._Ws=value
         self._renew_parameters()
 
     @V0.setter
@@ -197,13 +211,10 @@ class AtmosConditions():
     def M(self, value):
         self._M=correct_mach(value)
         self._T = self._correctT()
-        self._V = self._correctV()
         self.a = np.sqrt(self.gamma * self.R * self._T)
-
-    @Ws.setter
-    def Ws(self, value):
-        print("Changing a corrected parameter directly is not allowed. Change the measured parameter instead.")
-        print("Parameter you tried to change was Ws")
+        self._V = self._correctV(self._M*self.a)
+        for obs in self._observers:
+            obs()
 
     @V.setter
     def V(self, value):
@@ -227,10 +238,10 @@ class AtmosConditions():
 
 
 class FlightParams(AtmosConditions):
-    def __init__(self, hp=1000, V0=200, alpha0=0, th0=0, m=4000, e=0.8, CD0=0.04, CLa=5.084, Cma=-0.5626,
+    def __init__(self, hp=1000, V0=200, alpha0=0, th0=0, m=4000, Ws=60500, e=0.8, CD0=0.04, CLa=5.084, Cma=-0.5626,
                  Cmde=-1.1642, S=30., Sh_multiply=0.2, lh=0.71 * 5.968, c=2.0569, b=15.911, bh=5.791, Vh_V=1,
                  ih=-2 * np.pi / 180, rho0=1.2250, T0=288.15, R=287.058, g=9.80665, KX2=0.019, KZ2=0.042, KXZ=0.002,
-                 KY2=1.3925, Cm0=0.0297, CXu=-0.0279, CXa=-0.4797, CXadot=0.0833, CXq=-0.2817, CXde=-0.0373,
+                 KY2=1.3925, Cm0=0.0297, CXu=-0.095, CXa=-0.4797, CXadot=0.0833, CXq=-0.2817, CXde=-0.0373,
                  CZu=-0.3762, CZa=-5.7434, CZadot=-0.0035, CZq=-5.6629, CZde=-0.6961, Cmu=0.0699, Cmadot=0.178,
                  Cmq=-8.7941, CmTc=-0.0064, CYb=-0.75, CYbdot=0, CYp=-0.0304, CYr=0.8495, CYda=-0.04, CYdr=0.23,
                  Clb=-0.1026, Clp=-0.7108, Clr=0.2376, Clda=-0.2309, Cldr=0.0344, Cnb=0.1348, Cnbdot=0, Cnp=-0.0602,
@@ -238,7 +249,7 @@ class FlightParams(AtmosConditions):
 
         # Inherit the parameters gamma, g, R, m, ms, W, Ws, V0, p0, rho0, T0, hp, a, V, p, rho and T from the
         # atmospheric flight conditions class. All 'output' parameters (a, V, p, rho and T) are corrected and reduced.
-        super().__init__(m=m, hp=hp, V0=V0, rho0=rho0, T0=T0, g=g, R=R)
+        super().__init__(m=m, Ws=Ws, hp=hp, V0=V0, rho0=rho0, T0=T0, g=g, R=R)
 
         self.alpha0 =    alpha0             # angle of attack in the stationary flight condition [rad]
         self.th0    =    th0                # pitch angle in the stationary flight condition [rad]
@@ -267,12 +278,11 @@ class FlightParams(AtmosConditions):
         self.ih     = ih                    # stabiliser angle of incidence [rad]
 
         # Constant values concerning aircraft inertia
-        self.muc    = m / (self.rho * S * c)
-        self.mub    = m / (self.rho * S * b)
         self.KX2    = KX2
         self.KZ2    = KZ2
         self.KXZ    = KXZ
         self.KY2    = KY2
+
 
         # Aerodynamic constants
         self.Cmac   = Cm0                                       # Moment coefficient about the aerodynamic centre [ ]
@@ -280,19 +290,13 @@ class FlightParams(AtmosConditions):
         self.CNha   = 2 * np.pi * self.Ah / (self.Ah + 2)       # Stabiliser normal force slope [ ]
         self.depsda = 4 / (self.A + 2)                          # Downwash gradient [ ]
 
-        # Lift and drag coefficient
-        self.CL = 2 * self.W / (self.rho * V0 * V0 * S)         # Lift coefficient [ ]
-        self.CD = CD0+(CLa * alpha0)**2 / (np.pi * self.A * e)  # Drag coefficient [ ]
-
-        # Stabiblity derivatives
-        self.CX0    = self.W * np.sin(th0) / (0.5 * self.rho * V0 * V0 * S)
-        self.CXu    = -CXu
-        self.CXa    = CXa		# Positive! (has been erroneously negative since 1993)
+        # Stability derivatives
+        self.CXu    = CXu
+        self.CXa    = -CXa		# Positive! (has been erroneously negative since 1993)
         self.CXadot = CXadot
         self.CXq    = CXq
         self.CXde   = CXde
 
-        self.CZ0    = -self.W * np.cos(th0) / (0.5 * self.rho * V0 * V0 * S)
         self.CZu    = CZu
         self.CZa    = CZa
         self.CZadot = CZadot
@@ -323,6 +327,79 @@ class FlightParams(AtmosConditions):
         self.Cnr    =  Cnr
         self.Cnda   =  Cnda
         self.Cndr   =  Cndr
+
+        # Make sure parameters are auto-updated
+        self.bind_observer(self._renew_stability_param)
+
+    @property
+    def muc(self):
+        return self._muc
+
+    @property
+    def mub(self):
+        return self._mub
+
+    @property
+    def CL(self):
+        return self._CL
+
+    @property
+    def CD(self):
+        return self._CD
+
+    @property
+    def CX0(self):
+        return self._CX0
+
+    @property
+    def CZ0(self):
+        return self._CZ0
+
+    def _renew_stability_param(self):
+        self._muc    = self.m / (self.rho * self.S * self.c)
+        self._mub    = self.m / (self.rho * self.S * self.b)
+
+        # Lift and drag coefficient
+        self._CL = 2 * self.W / (self.rho * self.V * self.V * self.S)               # Lift coefficient [ ]
+        self._CD = self.CD0+(self.CLa * self.alpha0)**2 / (np.pi * self.A * self.e) # Drag coefficient [ ]
+
+        self._CX0    = self.W * np.sin(self.th0) / (0.5 * self.rho * self.V * self.V * self.S)
+        self._CZ0    = -self.W * np.cos(self.th0) / (0.5 * self.rho * self.V * self.V * self.S)
+
+    @muc.setter
+    def muc(self, value):
+        print("Changing a corrected parameter directly is not allowed. Change the measured parameter instead.")
+        print("Parameter you tried to change was muc")
+
+    @mub.setter
+    def mub(self, value):
+        print("Changing a corrected parameter directly is not allowed. Change the measured parameter instead.")
+        print("Parameter you tried to change was mub")
+
+    @CL.setter
+    def CL(self, value):
+        print("Changing a corrected parameter directly is not allowed. Change the measured parameter instead.")
+        print("Parameter you tried to change was CL")
+
+    @CD.setter
+    def CD(self, value):
+        print("Changing a corrected parameter directly is not allowed. Change the measured parameter instead.")
+        print("Parameter you tried to change was CD")
+
+    @CX0.setter
+    def CX0(self, value):
+        print("Changing a corrected parameter directly is not allowed. Change the measured parameter instead.")
+        print("Parameter you tried to change was CX0")
+
+    @CZ0.setter
+    def CZ0(self, value):
+        print("Changing a corrected parameter directly is not allowed. Change the measured parameter instead.")
+        print("Parameter you tried to change was CZ0")
+
+
+
+
+
 
 
 if __name__ == "__main__":
