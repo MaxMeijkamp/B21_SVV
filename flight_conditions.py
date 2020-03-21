@@ -73,6 +73,7 @@ class AtmosConditions():
         self.gamma = 1.4
         self.g = g
         self.R = R
+        self._observers = []
         self._m = m
         self._W = m * g
         self._Ws = Ws
@@ -82,7 +83,6 @@ class AtmosConditions():
         self._T0 = T0
         self._hp = hp
         self._renew_parameters()
-        self._observers = []
 
     def bind_observer(self, cb):
         self._observers.append(cb)
@@ -330,6 +330,7 @@ class FlightParams(AtmosConditions):
 
         # Make sure parameters are auto-updated
         self.bind_observer(self._renew_stability_param)
+        self._renew_stability_param()
 
     @property
     def muc(self):
@@ -404,3 +405,8 @@ class FlightParams(AtmosConditions):
 
 if __name__ == "__main__":
     ac = FlightParams()
+    print(ac.V)
+    print(ac.CL)
+    ac.V0 = 168
+    print(ac.V)
+    print(ac.CL)
