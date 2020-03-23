@@ -77,7 +77,8 @@ class AtmosConditions():
         self._m = m
         self._W = m * g
         self._Ws = Ws
-        self._V0 = correct_speed(V0)
+        self._V0 = V0
+        self._Vtas = correct_speed(V0)
         self._p0 = p0
         self._rho0 = rho0
         self._T0 = T0
@@ -90,6 +91,7 @@ class AtmosConditions():
     def _renew_parameters(self):
         # Updates all relevant flight parameters based on the ISA atmosphere and mach and weight corrections.
         self._p, self._rho, self._T = ISA_calculator(self._hp)
+        self._Vtas = correct_speed(self._V0)
         self._M = self._getMach()
         self._T = self._correctT()
         self.a = np.sqrt(self.gamma * self.R * self._T)
@@ -100,7 +102,7 @@ class AtmosConditions():
 
     def _getMach(self):
         # Returns the mach number for the given flight conditions.
-        return np.sqrt((2 / (self.gamma - 1)) * ((1 + (self._p0 / self._p) * ((1 + ((self.gamma - 1) * self._rho0 * self._V0 * self._V0) /
+        return np.sqrt((2 / (self.gamma - 1)) * ((1 + (self._p0 / self._p) * ((1 + ((self.gamma - 1) * self._rho0 * self._Vtas * self._Vtas) /
                                                                                (2 * self.gamma * self._p0)) ** (self.gamma / (self.gamma - 1)) - 1)) ** ((self.gamma - 1) / self.gamma) - 1))
 
     def _correctT(self):
@@ -126,6 +128,10 @@ class AtmosConditions():
     @property
     def V0(self):
         return self._V0
+
+    @property
+    def Vtas(self):
+        return self._Vtas
 
     @property
     def p0(self):
@@ -186,6 +192,17 @@ class AtmosConditions():
     def V0(self, value):
         self._V0=value
         self._renew_parameters()
+
+    @Vtas.setter
+    def Vtas(self, value):
+        self._Vtas=value
+        self._M = self._getMach()
+        self._T = self._correctT()
+        self.a = np.sqrt(self.gamma * self.R * self._T)
+        self._V = self._correctV(self._M*self.a)
+        for obs in self._observers:
+            obs()
+        return
 
     @p0.setter
     def p0(self, value):
