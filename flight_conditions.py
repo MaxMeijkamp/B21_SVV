@@ -378,7 +378,8 @@ class FlightParams(AtmosConditions):
         self._mub    = self.m / (self.rho * self.S * self.b)
 
         # Lift and drag coefficient
-        self._CL = 2 * self.W / (self.rho * self.V * self.V * self.S)               # Lift coefficient [ ]
+        self._CL_eig = 2 * self.W / (self.rho * self.Vtas * self.Vtas * self.S)               # Lift coefficient [ ]
+        self._CL = 2 * self.W / (self.rho * self.V * self.V * self.S)
         self._CD = self.CD0+(self.CLa * self.alpha0)**2 / (np.pi * self.A * self.e) # Drag coefficient [ ]
 
         self._CX0    = self.W * np.sin(self.th0) / (0.5 * self.rho * self.V * self.V * self.S)
