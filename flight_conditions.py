@@ -255,7 +255,7 @@ class AtmosConditions():
 
 
 class FlightParams(AtmosConditions):
-    def __init__(self, hp=1000, V0=100, alpha0=6*np.pi/180, th0=10*np.pi/180, m=4000, Ws=60500, e=0.8, CD0=0.04, CLa=5.084, Cma=-0.5626,
+    def __init__(self, hp=6800*0.3048, V0=155*0.51444444444, alpha0=6*np.pi/180, th0=9*np.pi/180, m=5000, Ws=60500, e=0.8, CD0=0.04, CLa=5.084, Cma=-0.5626,
                  Cmde=-1.1642, S=30., Sh_multiply=0.2, lh=0.71 * 5.968, c=2.0569, b=15.911, bh=5.791, Vh_V=1,
                  ih=-2 * np.pi / 180, rho0=1.2250, T0=288.15, R=287.058, g=9.80665, KX2=0.019, KZ2=0.042, KXZ=0.002,
                  KY2=1.3925, Cm0=0.0297, CXu=-0.095, CXa=-0.4797, CXadot=0.0833, CXq=-0.2817, CXde=-0.0373,

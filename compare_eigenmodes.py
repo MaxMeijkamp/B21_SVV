@@ -11,9 +11,11 @@ import numpy as np
 from System_response import *
 from MCG import *
 from Cit_par_B21 import *
+from Cit_par_ref import *
+from Cit_par_final import *
 
 
-def get_ftis_data(filename):
+def get_ftis_data(filename, ref=False):
     data = loadmat(filename)['flightdata']
 
     keys = np.array(['vane_AOA', 'elevator_dte', 'column_fe', 'lh_engine_FMF', 'rh_engine_FMF', 'lh_engine_itt',
@@ -26,9 +28,11 @@ def get_ftis_data(filename):
                      'Dadc1_tas', 'Dadc1_altRate', 'measurement_running', 'measurement_n_rdy', 'display_graph_state',
                      'display_active_screen', 'time'])
 
+    if ref:
+        keys = np.delete(keys, 9)
+
     ftis = dict.fromkeys(keys)
     units = dict.fromkeys(keys)
-
     for i in range(keys.size):
         ftis[keys[i]] = data[0,0][i][0,0][0].flatten()
         pre_unit = data[0,0][i][0,0][1]
@@ -204,26 +208,27 @@ def Sym_2(t_start,t_end, ftis, ac: FlightParams):
     pitchr_list = ftis['Ahrs1_bPitchRate'][(t >= t_start) & (t < t_end)]
     TAS_list = ftis['Dadc1_tas'][(t>=t_start) & (t<t_end)]
     pitchr_list = np.deg2rad(pitchr_list) * ac.c / TAS_list[0] # Reduce and make dimensionless
-    aoa_list = np.deg2rad(aoa_list - aoa_list[0]) # Reduce and change units
-    pitch_list = np.deg2rad(pitch_list - pitch_list[0]) # Reduce and change units
-    TAS_list = (TAS_list-TAS_list[0])/TAS_list[0] # Make dimensionless and reduce
+    aoa_list = np.deg2rad(aoa_list - np.average(aoa_list)) # Reduce and change units
+    pitch_list = np.deg2rad(pitch_list - np.average(pitch_list)) # Reduce and change units
+    # pitch_list = np.deg2rad(pitch_list - pitchr_list[0]) # Reduce and change units
+    TAS_list = (TAS_list-np.average(TAS_list))/TAS_list[0] # Make dimensionless and reduce
     t_list = t[(t>=t_start) & (t<t_end)]
 
     # Plotting figures for angle response
 
-    plot_response(t_list, TAS_list, aoa_list, pitch_list, pitchr_list, "TAS [m/s]", "AOA [deg]", "Pitch angle [deg]", "Pitch rate [deg/s]")
+    plot_response(t_list, TAS_list, aoa_list, pitch_list, pitchr_list, "TAS [m/s]", "AOA [rad]", "Pitch angle [rad]", "Pitch rate [rad/s]")
     return
 
 
 if __name__ == "__main__":
-    ftis, units = get_ftis_data('FTISxprt-20200311_flight3.mat')
-    # ftis, units = get_ftis_data('matlab.mat')
-    tstart = 55*60 # [s]
+    # ftis, units = get_ftis_data('FTISxprt-20200311_flight3.mat')
+    ftis, units = get_ftis_data('matlab.mat', ref=True)
+    tstart = 53*60+58 # [s]
     tend = 57*60 # [s]
     fuel_used = ftis['lh_engine_FU']+ftis['rh_engine_FU']
     t = ftis['time']
     W, M, X_cg = mcg(fuel_used[(t==tstart)].item(), 0,  1)
-    ac = ac_B21(m=W/9.80665)
+    ac = ac_fin(m=W/9.80665)
 
     # Phugoid
     print('PHUGOID')
@@ -231,20 +236,27 @@ if __name__ == "__main__":
     Sym_2(tstart, tend, ftis, ac)
 
     syss = sym_flight(ac)
+
     T = ftis['time'][(t >= tstart) & (t<tend)]
     U = ftis['delta_e'][(t >= tstart) & (t<tend)]*np.pi/180
     # U = np.ones_like(U)#*np.average(U)
-    X0 = np.array([0, 0, 0, 0])
+    # X0 = np.array([0, 0, ftis['Ahrs1_Pitch'][(t==tstart)].item()*np.pi/180,
+    #                ftis['Ahrs1_bPitchRate'][(t==tstart)].item()*ac.c/ftis['Dadc1_tas'][(t==tstart)].item()*np.pi/180])
+
+    X0 = np.array([0, 0, 0, ftis['Ahrs1_bPitchRate'][(t == tstart)].item() * ac.c / ftis['Dadc1_tas'][
+                       (t == tstart)].item() * np.pi / 180])
+
+    # X0 = np.array([0, 0, 0, 0])
     t, yout, xout = control.forced_response(syss, U=U, T=T, X0=X0)
     # yout[0, :] *= -4
     # yout[1, :] *= 3
     # yout[2, :] *= -2
     # yout[3, :] *= -3
-    plot_response(T, yout[0, :], yout[1, :], yout[2, :], yout[3, :], "TAS [m/s]", "AOA [deg]", "Pitch angle [deg]", "Pitch rate [deg/s]")
+    plot_response(T, yout[0, :]-np.average(yout[0, :]), yout[1, :]-np.average(yout[1, :]), yout[2, :]-np.average(yout[2, :]), yout[3, :], "TAS [m/s]", "AOA [rad]", "Pitch angle [rad]", "Pitch rate [rad/s]")
 
     plt.tight_layout()
     plt.show()
-    plt.plot()
+
     # plt.plot(T,U)
     # plt.show()
 

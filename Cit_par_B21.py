@@ -7,6 +7,7 @@ Created on Mon Mar 23 09:46:36 2020
 
 from numpy import *
 from flight_conditions import *
+from Cit_par_ref import *
 
 # Citation 550 - Linear simulation
 
@@ -15,10 +16,10 @@ from flight_conditions import *
 # Stationary flight condition
 # taken right before phugoid
 def ac_B21(m=6000) -> FlightParams:
-    hp0    =  7567*0.3048     	      # pressure altitude in the stationary flight condition [m]
-    V0     = 151*0.51444444444            # true airspeed in the stationary flight condition [m/sec]
+    hp0    =  6800*0.3048     	      # pressure altitude in the stationary flight condition [m]
+    V0     = 155*0.51444444444            # true airspeed in the stationary flight condition [m/sec]
     alpha0 =  6*pi/180           # angle of attack in the stationary flight condition [rad]
-    th0    = 10*pi/180            # pitch angle in the stationary flight condition [rad]
+    th0    = 9*pi/180            # pitch angle in the stationary flight condition [rad]
     gamma0 = th0 - alpha0
 
     # Aircraft mass
@@ -26,9 +27,9 @@ def ac_B21(m=6000) -> FlightParams:
     m_cur  =   m          # mass [kg]
 
     # aerodynamic properties #NOG FOUT
-    e      = 0.8          # Oswald factor [ ]
-    CD0    = 0.0182898           # Zero lift drag coefficient [ ]
-    CLa    =  0.12523*180/np.pi        # Slope of CL-alpha curve [ ]
+    e      = 1.30492          # Oswald factor [ ]
+    CD0    = 0.01542          # Zero lift drag coefficient [ ]
+    CLa    = 4.76             # Slope of CL-alpha curve [ ]
 
     # Longitudinal stability
     Cma    =  -0.573          # longitudinal stabilty [ ]
@@ -131,5 +132,10 @@ if __name__ == "__main__":
     from MCG import *
     W, _, _ = mcg(946.8, 0, 1)
     ac = ac_B21(m=W/9.80665)
-    ac1 = FlightParams(m=ac.m, hp=ac.hp, V0=ac.V0, alpha0=ac.alpha0, th0=ac.th0)
+    ac0 = FlightParams(m=ac.m, hp=ac.hp, V0=ac.V0, alpha0=ac.alpha0, th0=ac.th0)
+    acref = ac_ref(m=ac.m)
     print_acdata(ac)
+    print()
+    print_acdata(ac0)
+    print()
+    print_acdata(acref)

@@ -33,7 +33,7 @@ def resultarrays(data):
     ac = FlightParams()
     alpha_CL = []
     CL_CD = []
-    for m, meas in zip(W/9.80665, data):
+    for m, meas in zip(W/ac.g, data):
         ac.hp, ac.V0, ac.alpha0, ac.T0, ac.m = meas[0], meas[1], meas[2], meas[4], m
         alpha_CL.append([meas[2], ac.CL])
         CD = meas[5]/(0.5*1.225*ac.V*ac.V*ac.S)
@@ -99,3 +99,4 @@ if __name__ == "__main__":
     cla, cl0 = get_cla_cl0(alpha_CL)
     print("CD0 = {}; e = {}".format(cd0, e))
     print("CLa = {}; CL0 = {}".format(cla, cl0))
+

@@ -57,10 +57,10 @@ def inspect_sys(sys, eigvals=True, eigvect=True) -> None:
 
 def sym_flight(ac: FlightParams):
     # Construct the symmetric flight state-space system for an aircraft
-    C1s = np.matrix([[-2*ac.muc*ac.c/ac.V, 0 , 0 , 0],
-                     [0 , (ac.CZadot -2*ac.muc)*ac.c/ac.V, 0 , 0],
-                     [0 , 0 , -ac.c/ac.V , 0],
-                     [0, ac.Cmadot*ac.c/ac.V , 0 , -2*ac.muc*ac.KY2*ac.c/ac.V]])
+    C1s = np.matrix([[-2*ac.muc*ac.c/ac.Vtas, 0 , 0 , 0],
+                     [0 , (ac.CZadot -2*ac.muc)*ac.c/ac.Vtas, 0 , 0],
+                     [0 , 0 , -ac.c/ac.Vtas , 0],
+                     [0, ac.Cmadot*ac.c/ac.Vtas , 0 , -2*ac.muc*ac.KY2*ac.c/ac.Vtas]])
 
     C2s = np.matrix([[-ac.CXu, -ac.CXa , -ac.CZ0 , -ac.CXq],
                      [-ac.CZu , -ac.CZa, ac.CX0 , -ac.CZq - 2*ac.muc],
@@ -114,7 +114,7 @@ if __name__ == "__main__":
     aircraft = FlightParams(m=6000)
 
     # Define input and time-line for reponse
-    t = np.arange(0, 100.01, 0.01)
+    t = np.arange(0, 10.01, 0.01)
     U = np.zeros((2,t.size))
     U[0,np.where(t<5.)] = np.ones_like(np.where(t<5.))
     # U1[:,np.where(t1<0.5)] = 1.0
