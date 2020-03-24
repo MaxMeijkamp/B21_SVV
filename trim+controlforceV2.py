@@ -13,7 +13,7 @@ from math import *
 import scipy
 from scipy.io import loadmat
 from matplotlib import pyplot as plt
-from MCG import *   #choose ref data or flight data
+from MCGV2 import *   #choose ref data or flight data
 from System_response import *
 from flight_conditions import *
 from numerical_tools import *
@@ -27,7 +27,8 @@ c = 2.0569
 S = 30
 Cm_T_c = -0.0064
 d = 27*0.0254
-W_s = 65000
+W_s = 60500
+rho0 = 1.225
 
 #second stationary measurement series
 t = np.array([39*60+16, 40*60+33, 41*60+31, 43*60+15, 44*60+55, 46*60+14, 47*60+8])
@@ -90,25 +91,36 @@ plt.plot(V_e_tilde,d_e_star)
 p = np.poly1d(np.polyfit(V_e_tilde, d_e_star, 2)) #1 is linear, 2 is parabolic
 plt.plot(V_e_tilde,p(V_e_tilde),'r--')
 plt.title('Elevator trim curve')
-plt.xlabel(r'$\~V_e$')
-plt.ylabel(r'$\delta^*_e$')
+plt.xlabel(r'$\~V_e (m/s)$')
+plt.ylabel(r'$\delta^*_e (rad)$')
 plt.figure()
 plt.plot(V_e_tilde,F_e_star)
 q = np.poly1d(np.polyfit(V_e_tilde, F_e_star, 2)) #1 is linear, 2 is parabolic
 plt.plot(V_e_tilde,q(V_e_tilde),'r--')
 plt.title('Elevator control force curve')
-plt.xlabel(r'$\~V_e$')
-plt.ylabel(r'$F^*_e$')
+plt.xlabel(r'$\~V_e (m/s)$')
+plt.ylabel(r'$F^*_e (N)$')
 plt.show()
 
 #calculate Cma
 #wat ik oorspronkelijk dacht hoe het moest
-delta_a = data['flightdata'][0][0][16][0][0][0][np.where(t_rec[:,0]==t)]*pi/180
-Cm_alpha = -delta_d_e/delta_a*Cm_d
+#delta_a = data['flightdata'][0][0][16][0][0][0][np.where(t_rec[:,0]==t)]*pi/180
+#Cm_alpha = -delta_d_e/delta_a*Cm_d
 
 #formule uit flight dynamics reader
 ### d_d_e/d_V = 4W/rhoV^3S*1/Cm_d*Cm_alpha/CL_alpha
 
 #met de afgeleide van de trim curve (zit zeker een factor te weinig in)
-deda = np.polyfit(V_e_tilde, d_e_star, 2)[0]
-Cm_alpha = -deda*Cm_d
+#deda = np.polyfit(V_e_tilde, d_e_star, 2)[0]
+#Cm_alpha = -deda*Cm_d
+
+#d_e vs alpha plotten en daar slope van pakken
+alpha = np.array([4, 4, 5, 5, 6, 7, 9])*pi/180
+plt.figure()
+plt.plot(alpha, d_e_star)
+q = np.poly1d(np.polyfit(alpha, d_e_star, 1)) #1 is linear, 2 is parabolic
+plt.plot(alpha,q(alpha),'r--')
+plt.show()
+
+deda = np.polyfit(alpha, d_e_star, 1)[0]
+Cm_alpha = deda*Cm_d
