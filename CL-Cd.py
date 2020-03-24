@@ -37,19 +37,17 @@ def cdclalfa(stationarytest, plot):
     alfa= np.zeros([6,1])
     C_lsquare = np.zeros([6,1])
 
-    ac = FlightParams()
-
     for i in range(len(stationarytest)):
         W = mcg(stationarytest[i][5], 0, 1)[0]
+        rho = stationarytest[i][8]
+        #V0 = stationarytest[i][1] * 0.51444 * np.sqrt(rho/rho0)*np.sqrt(Ws/W)
         V0 = stationarytest[i][1]* 0.514444
         T = stationarytest[i][7]
         hp = stationarytest[i][0]*0.3044
+        C_l[i][0] = FlightParams(m=W/g, V0=V0, hp=hp, T0=(stationarytest[i][7])+273.15).CL
+        #C_l[i][0] = 2*W/rho/V0/V0/S
+        C_D[i][0] = C_l[i][0]*T/W
         alfa[i][0] = stationarytest[i][2]/180*np.pi
-
-        ac.m, ac.V0, ac.hp, ac.T0, ac.alpha0 = W/g, V0, hp, (stationarytest[i][7])+273.15, alfa[i][0]
-
-        C_l[i][0] = ac.CL
-        C_D[i][0] = ac.CL*T/ac.W
         C_lsquare[i][0] = C_l[i][0]**2
 
     corrcl2cd = np.polyfit(C_lsquare.T[0], C_D.T[0], 1)
@@ -58,12 +56,17 @@ def cdclalfa(stationarytest, plot):
     corrC_l_alfa = np.polyfit(alfa.T[0], C_l.T[0], 1)
     trend_alfa_cl = np.poly1d(corrC_l_alfa)
 
+    corrcdcl = np.polyfit(C_D.T[0], C_l.T[0], 1)
+    trendlinecdcl = np.poly1d(corrcdcl)
+
+
     C_l_alfa = corrC_l_alfa[0]
     Cl0 = corrC_l_alfa[1]
     print('Cl_alpha = ', C_l_alfa, ', Cl0=', Cl0)
+
     Cd0 = corrcl2cd[1]
     pi_e_A = 1 / corrcl2cd[0]
-    e = pi_e_A / np.pi / ac.A
+    e = pi_e_A / np.pi / A
 
     print('Cdo =', Cd0,", e =", e)
 
@@ -72,11 +75,16 @@ def cdclalfa(stationarytest, plot):
         plt.title(r'$C_D$-$C_L^2$ curve')
         plt.xlabel(r"$C_L^2$ [-]")
         plt.ylabel("$C_D$ [-]")
-    else:
+    elif plot == 1:
         plt.plot(alfa, C_l, 'o', alfa, trend_alfa_cl(alfa))
         plt.title(r'$C_l$-$\alpha$ curve')
         plt.xlabel(r"$\alpha$ [rad]")
         plt.ylabel("$C_l$ [-]")
+    else:
+        plt.plot(C_D, C_l, 'o', C_D, trendlinecdcl(C_D))
+        plt.title('$C_L$-$C_D$ curve')
+        plt.xlabel("$C_D$ [-]")
+        plt.ylabel("$C_L$ [-]")
 
     plt.show()
     return C_l, C_D, alfa, C_lsquare
@@ -115,7 +123,7 @@ thrustrefperengine = np.array([[3700.82,	3807.6],
 for i in range(len(thrustrefperengine)):  # total thrust during stationary measurements
     reftest[i][7] = sum(thrustrefperengine[i])
 
-a = cdclalfa(stationarytest, 0)
+a = cdclalfa(reftest, 2)
 
 
 
