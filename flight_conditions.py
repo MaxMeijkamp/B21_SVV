@@ -10,8 +10,7 @@ def create_matlabdat(TAT, h, FFL, FFR):
 
 
 def correct_speed(velocity):
-    # Converts from indicated airspeed to calibrated airspeed. Input and output are consistent in units (if input is
-    # in knots, output is in knots).
+    # Converts from indicated airspeed to calibrated airspeed. Input and output are both in m/s
     velocity = velocity * 1.94384449
     tableKIAS = np.append(np.linspace(80,275,40),277)
     tableKCAS = np.array([78, 83, 88, 93, 98, 103, 108, 113, 118, 123, 128, 133, 138, 143, 148, 153, 158, 163, 168, \
