@@ -262,7 +262,7 @@ class FlightParams(AtmosConditions):
                  CZu=-0.3762, CZa=-5.7434, CZadot=-0.0035, CZq=-5.6629, CZde=-0.6961, Cmu=0.0699, Cmadot=0.178,
                  Cmq=-8.7941, CmTc=-0.0064, CYb=-0.75, CYbdot=0, CYp=-0.0304, CYr=0.8495, CYda=-0.04, CYdr=0.23,
                  Clb=-0.1026, Clp=-0.7108, Clr=0.2376, Clda=-0.2309, Cldr=0.0344, Cnb=0.1348, Cnbdot=0, Cnp=-0.0602,
-                 Cnr=-0.2061, Cnda=-0.012, Cndr=-0.0939, numericalmodel=False):
+                 Cnr=-0.2061, Cnda=-0.012, Cndr=-0.0939):
 
         # Inherit the parameters gamma, g, R, m, ms, W, Ws, V0, p0, rho0, T0, hp, a, V, p, rho and T from the
         # atmospheric flight conditions class. All 'output' parameters (a, V, p, rho and T) are corrected and reduced.

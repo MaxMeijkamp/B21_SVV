@@ -28,7 +28,7 @@ def ac_B21(m=6000) -> FlightParams:
     # aerodynamic properties
     e      = 0.8          # Oswald factor [ ]
     CD0    = 0.0182898           # Zero lift drag coefficient [ ]
-    CLa    =  0.12523        # Slope of CL-alpha curve [ ]
+    CLa    =  0.12523*180/np.pi        # Slope of CL-alpha curve [ ]
 
     # Longitudinal stability
     Cma    =  -0.777          # longitudinal stabilty [ ]
@@ -133,4 +133,3 @@ if __name__ == "__main__":
     ac = ac_B21(m=W/9.80665)
     ac1 = FlightParams(m=ac.m, hp=ac.hp, V0=ac.V0, alpha0=ac.alpha0, th0=ac.th0)
     print_acdata(ac)
-    print_acdata(ac1)
