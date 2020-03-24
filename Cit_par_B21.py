@@ -25,7 +25,7 @@ def ac_B21(m=6000) -> FlightParams:
 
     m_cur  =   m          # mass [kg]
 
-    # aerodynamic properties
+    # aerodynamic properties #NOG FOUT
     e      = 0.8          # Oswald factor [ ]
     CD0    = 0.0182898           # Zero lift drag coefficient [ ]
     CLa    =  0.12523*180/np.pi        # Slope of CL-alpha curve [ ]
