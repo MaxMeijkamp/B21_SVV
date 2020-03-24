@@ -6,7 +6,7 @@ import numpy as np
 import xlrd as xl
 
 from flight_conditions import *
-from mcg import mcg
+from MCG import mcg
 import matplotlib.pyplot as plt
 
 
@@ -38,7 +38,7 @@ def cdclalfa(stationarytest, plot):
     C_lsquare = np.zeros([6,1])
 
     for i in range(len(stationarytest)):
-        W = mcg(stationarytest[i][5], 0, 1)
+        W = mcg(stationarytest[i][5], 0, 1)[0]
         rho = stationarytest[i][8]
         #V0 = stationarytest[i][1] * 0.51444 * np.sqrt(rho/rho0)*np.sqrt(Ws/W)
         V0 = stationarytest[i][1]* 0.514444
@@ -115,6 +115,7 @@ for i in range(len(thrustrefperengine)):  # total thrust during stationary measu
     reftest[i][7] = sum(thrustrefperengine[i])
 
 a = cdclalfa(reftest, 1)
+
 
 
 
