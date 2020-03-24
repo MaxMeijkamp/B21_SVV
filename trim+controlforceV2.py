@@ -13,7 +13,7 @@ from math import *
 import scipy
 from scipy.io import loadmat
 from matplotlib import pyplot as plt
-from MCGV2 import *   #choose ref data or flight data
+from MCG import *   #choose ref data or flight data
 from System_response import *
 from flight_conditions import *
 from numerical_tools import *
@@ -21,7 +21,7 @@ from numerical_tools import *
 #data = loadmat('matlab.mat')
 data = loadmat('FTISxprt-20200311_flight3')
 
-FlightParams
+ac = FlightParams()
 
 c = 2.0569
 S = 30
@@ -60,7 +60,7 @@ for i in range(7):
     F_e_star[i] = F_e[i]*W_s/W[i]
 
 #gravity shift -> new parameters
-delta_cg = mcg(867, 2, 2)[2] - mcg(845, 1, 2)[2]
+delta_cg = mcg(867, 2, 2)[2] - mcg(845, 0, 2)[2]
 t = 49*60+48
 ac.hp = 7408*0.3048
 delta_d_e = -0.6*pi/180

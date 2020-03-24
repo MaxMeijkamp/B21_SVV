@@ -31,8 +31,8 @@ def ac_B21(m=6000) -> FlightParams:
     CLa    =  0.12523*180/np.pi        # Slope of CL-alpha curve [ ]
 
     # Longitudinal stability
-    Cma    =  -0.777          # longitudinal stabilty [ ]
-    Cmde   =   -1.63          # elevator effectiveness [ ]
+    Cma    =  -0.573          # longitudinal stabilty [ ]
+    Cmde   =   -1.138          # elevator effectiveness [ ]
 
     # Aircraft geometry
 
@@ -125,7 +125,7 @@ def ac_B21(m=6000) -> FlightParams:
                         CXadot=CXadot, CXq=CXq, CXde=CXde, CZu=CZu, CZa=CZa, CZadot=CZadot, CZq=CZq, CZde=CZde, Cmu=Cmu,
                         Cmadot=Cmadot, Cmq=Cmq, CYb=CYb, CYbdot=CYbdot, CYp=CYp, CYr=CYr, CYda=CYda, CYdr=CYdr, Clb=Clb,
                         Clp=Clp, Clr=Clr, Clda=Clda, Cldr=Cldr, Cnb=Cnb, Cnbdot=Cnbdot, Cnp=Cnp, Cnr=Cnr, Cnda=Cnda,
-                        Cndr=Cndr)
+                        Cndr=Cndr, Cma=Cma, Cmde=Cmde)
 
 if __name__ == "__main__":
     from MCG import *

@@ -37,17 +37,19 @@ def cdclalfa(stationarytest, plot):
     alfa= np.zeros([6,1])
     C_lsquare = np.zeros([6,1])
 
+    ac = FlightParams()
+
     for i in range(len(stationarytest)):
         W = mcg(stationarytest[i][5], 0, 1)[0]
-        rho = stationarytest[i][8]
-        #V0 = stationarytest[i][1] * 0.51444 * np.sqrt(rho/rho0)*np.sqrt(Ws/W)
         V0 = stationarytest[i][1]* 0.514444
         T = stationarytest[i][7]
         hp = stationarytest[i][0]*0.3044
-        C_l[i][0] = FlightParams(m=W/g, V0=V0, hp=hp, T0=(stationarytest[i][7])+273.15).CL
-        #C_l[i][0] = 2*W/rho/V0/V0/S
-        C_D[i][0] = C_l[i][0]*T/W
         alfa[i][0] = stationarytest[i][2]/180*np.pi
+
+        ac.m, ac.V0, ac.hp, ac.T0, ac.alpha0 = W/g, V0, hp, (stationarytest[i][7])+273.15, alfa[i][0]
+
+        C_l[i][0] = ac.CL
+        C_D[i][0] = ac.CL*T/ac.W
         C_lsquare[i][0] = C_l[i][0]**2
 
     corrcl2cd = np.polyfit(C_lsquare.T[0], C_D.T[0], 1)
@@ -66,7 +68,7 @@ def cdclalfa(stationarytest, plot):
 
     Cd0 = corrcl2cd[1]
     pi_e_A = 1 / corrcl2cd[0]
-    e = pi_e_A / np.pi / A
+    e = pi_e_A / np.pi / ac.A
 
     print('Cdo =', Cd0,", e =", e)
 
