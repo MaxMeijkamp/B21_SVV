@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from System_response import *
 from MCG import *
+from Cit_par_B21 import *
 
 
 def get_ftis_data(filename):
@@ -48,6 +49,45 @@ def get_ftis_data(filename):
 # Asymmetric Responses
     # for Dutch Roll, Aperiodic Roll and Spiral
 
+
+def plot_response(t, data1, data2, data3, data4, label1, label2, label3, label4):
+    f0 = plt.subplot(2, 2, 1)
+    plt.plot(t, data1)
+    plt.setp(f0.get_xticklabels(), visible=False)
+    plt.ylabel(label1)
+
+    f1 = plt.subplot(2, 2, 2)
+    plt.plot(t, data2)
+    plt.setp(f1.get_xticklabels(), visible=False)
+    plt.ylabel(label2)
+
+    f2 = plt.subplot(2, 2, 3)
+    plt.plot(t, data3)
+    plt.setp(f2.get_xticklabels(), visible=False)
+    plt.ylabel(label3)
+
+    f3 = plt.subplot(2, 2, 4)
+    plt.plot(t, data4)
+    plt.setp(f3.get_xticklabels(), fontsize=6)
+    plt.ylabel(label4)
+    plt.xlabel('Time [s]')
+    return
+
+
+def Asym_2(t_start, t_end, ftis):
+
+    # Gathering data
+    t = ftis['time']
+    pitchr_list = ftis['Ahrs1_bPitchRate'][(t>t_start) & (t<t_end)]
+    rollr_list = ftis['Ahrs1_bRollRate'][(t>t_start) & (t<t_end)]
+    yawr_list = ftis['Ahrs1_bYawRate'][(t>t_start) & (t<t_end)]
+    ur_list = ftis['Ahrs1_bLongAcc'][(t>t_start) & (t<t_end)]
+    qr_list = ftis['Ahrs1_bLatAcc'][(t>t_start) & (t<t_end)]
+    rr_list = ftis['Ahrs1_bNormAcc'][(t>t_start) & (t<t_end)]
+    t_list = t[(t>t_start) & (t<t_end)]
+
+    # Plotting figures for angle response
+    # plot_response(t_list, pitchr_list, rollr_list, , pitchr_list, "TAS [m/s]", "AOA [deg]", "Pitch angle [deg]", "Pitch rate [deg/s]")
 
 
 def Asym_1(t_start, t_end, ftis):
@@ -108,28 +148,6 @@ def Asym_1(t_start, t_end, ftis):
 #____________________________________________________________________________#
     
 # Symmetric response
-def plot_response(t, data1, data2, data3, data4, label1, label2, label3, label4):
-    f0 = plt.subplot(2, 2, 1)
-    plt.plot(t, data1)
-    plt.setp(f0.get_xticklabels(), visible=False)
-    plt.ylabel(label1)
-
-    f1 = plt.subplot(2, 2, 2)
-    plt.plot(t, data2)
-    plt.setp(f1.get_xticklabels(), visible=False)
-    plt.ylabel(label2)
-
-    f2 = plt.subplot(2, 2, 3)
-    plt.plot(t, data3)
-    plt.setp(f2.get_xticklabels(), visible=False)
-    plt.ylabel(label3)
-
-    f3 = plt.subplot(2, 2, 4)
-    plt.plot(t, data4)
-    plt.setp(f3.get_xticklabels(), fontsize=6)
-    plt.ylabel(label4)
-    plt.xlabel('Time [s]')
-    return
 
 
 def Sym_1(t_start,t_end, ftis):
@@ -204,9 +222,8 @@ if __name__ == "__main__":
     tend = 57*60 # [s]
     fuel_used = ftis['lh_engine_FU']+ftis['rh_engine_FU']
     t = ftis['time']
-
     W, M, X_cg = mcg(ftis['time'][(t==tstart)].item(), fuel_used[(t==tstart)], 1)
-    ac = FlightParams(m=W/9.80665)
+    ac = ac_B21(m=W/9.80665)
 
     # Phugoid
     print('PHUGOID')
@@ -219,13 +236,17 @@ if __name__ == "__main__":
     # U = np.ones_like(U)#*np.average(U)
     X0 = np.array([0, 0, 0, 0])
     t, yout, xout = control.forced_response(syss, U=U, T=T, X0=X0)
+    # yout[0, :] *= -4
+    # yout[1, :] *= 3
+    # yout[2, :] *= -2
+    # yout[3, :] *= -3
     plot_response(T, yout[0, :], yout[1, :], yout[2, :], yout[3, :], "TAS [m/s]", "AOA [deg]", "Pitch angle [deg]", "Pitch rate [deg/s]")
 
     plt.tight_layout()
     plt.show()
     plt.plot()
-    plt.plot(T,U)
-    plt.show()
+    # plt.plot(T,U)
+    # plt.show()
 
     # # Short Period
     # print('SHORT PERIOD')
@@ -235,7 +256,39 @@ if __name__ == "__main__":
 
     # # Dutch Roll
     # print('DUTCH ROLL')
-    # Asym_1(50*60 +40, 51*60, ftis)
+    # tstart = 55 * 60  # [s]
+    # tend = 57 * 60  # [s]
+    # fuel_used = ftis['lh_engine_FU'] + ftis['rh_engine_FU']
+    # t = ftis['time']
+    #
+    # W, M, X_cg = mcg(ftis['time'][(t == tstart)].item(), fuel_used[(t == tstart)], 1)
+    # ac = FlightParams(m=W / 9.80665)
+    #
+    #
+    # fig, ax = plt.subplots()
+    # Asym_2(tstart, tend, ftis, ac)
+    #
+    # syss = sym_flight(ac)
+    # T = ftis['time'][(t >= tstart) & (t < tend)]
+    # U = ftis['delta_e'][(t >= tstart) & (t < tend)] * np.pi / 180
+    # # U = np.ones_like(U)#*np.average(U)
+    # X0 = np.array([0, 0, 0, 0])
+    # t, yout, xout = control.forced_response(syss, U=U, T=T, X0=X0)
+    # yout[0, :] *= -4
+    # yout[1, :] *= 3
+    # yout[2, :] *= -2
+    # yout[3, :] *= -3
+    # plot_response(T, yout[0, :], yout[1, :], yout[2, :], yout[3, :], "TAS [m/s]", "AOA [deg]", "Pitch angle [deg]",
+    #               "Pitch rate [deg/s]")
+    #
+    # plt.tight_layout()
+    # plt.show()
+    # plt.plot()
+
+
+
+
+
     # # Dutch Roll YD
     # Asym_1(51*60 +13, 52*60, ftis)
     # # Aperiodic Roll

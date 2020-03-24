@@ -62,20 +62,20 @@ def sym_flight(ac: FlightParams):
                      [0 , 0 , -ac.c/ac.V , 0],
                      [0, ac.Cmadot*ac.c/ac.V , 0 , -2*ac.muc*ac.KY2*ac.c/ac.V]])
 
-    C2s = np.matrix([[ac.CXu, ac.CXa , ac.CZ0 , ac.CXq],
-                     [ac.CZu , ac.CZa, -ac.CX0 , ac.CZq + 2*ac.muc],
-                     [0 , 0 , 0 , 1],
-                     [ac.Cmu, ac.Cma , 0 , ac.Cmq]])
+    C2s = np.matrix([[-ac.CXu, -ac.CXa , -ac.CZ0 , -ac.CXq],
+                     [-ac.CZu , -ac.CZa, ac.CX0 , -ac.CZq - 2*ac.muc],
+                     [0 , 0 , 0 , -1],
+                     [-ac.Cmu, -ac.Cma , 0 , -ac.Cmq]])
 
-    C3s = np.matrix([[ac.CXde],
-                     [ac.CZde],
+    C3s = np.matrix([[-ac.CXde],
+                     [-ac.CZde],
                      [0],
-                     [ac.Cmde]])
+                     [-ac.Cmde]])
 
     C1sinv = np.linalg.inv(C1s)
 
-    As = -C1sinv*C2s
-    Bs = -C1sinv*C3s
+    As = C1sinv*C2s
+    Bs = C1sinv*C3s
     Cs = np.identity(4)
     Ds =np.zeros([4,1])
 
@@ -84,25 +84,25 @@ def sym_flight(ac: FlightParams):
 
 def asym_flight(ac: FlightParams):
     # Construct the asymmetric flight state-space system for an aircraft
-    C1a =np.matrix([[(ac.CYbdot-2*ac.mub), 0 , 0 , 0],
-                   [0 , -1/2*ac.b/ac.V, 0 , 0],
+    C1a =np.matrix([[(ac.CYbdot-2*ac.mub)*ac.b/ac.V, 0 , 0 , 0],
+                   [0 , -0.5*ac.b/ac.V, 0 , 0],
                    [0 , 0 , -4*ac.mub*ac.KX2*ac.b/ac.V , 4*ac.mub*ac.KXZ*ac.b/ac.V],
-                   [ac.Cnbdot*ac.b/ac.V, 0 , 4*ac.mub*ac.KXZ*ac.b/ac.V , -4*ac.mub*ac.KX2*ac.b/ac.V]])
+                   [ac.Cnbdot*ac.b/ac.V, 0 , 4*ac.mub*ac.KXZ*ac.b/ac.V , -4*ac.mub*ac.KZ2*ac.b/ac.V]])
 
-    C2a =np.matrix([[ac.CYb, ac.CL , ac.CYp , ac.CYr-4*ac.mub],
-                   [0 , 0, 1 , 0],
-                   [ac.Clb , 0 , ac.Clp , ac.Clr],
-                   [ac.Cnb, 0 , ac.Cnp , ac.Cnr]])
+    C2a =np.matrix([[-ac.CYb, -ac.CL , -ac.CYp , -ac.CYr+4*ac.mub],
+                   [0 , 0, -1 , 0],
+                   [-ac.Clb , 0 , -ac.Clp , -ac.Clr],
+                   [-ac.Cnb, 0 , -ac.Cnp , -ac.Cnr]])
 
-    C3a = np.matrix([[ac.CYda, ac.CYdr],
+    C3a = np.matrix([[-ac.CYda, -ac.CYdr],
                     [0 , 0],
-                    [ac.Clda, ac.Cldr],
-                    [ac.Cnda, ac.Cndr]])
+                    [-ac.Clda, -ac.Cldr],
+                    [-ac.Cnda, -ac.Cndr]])
 
     C1ainv = np.linalg.inv(C1a)
 
-    Aa = -C1ainv*C2a
-    Ba = -C1ainv*C3a
+    Aa = C1ainv*C2a
+    Ba = C1ainv*C3a
     Ca = np.identity(4)
     Da =np.zeros([4 , 2])
 

@@ -4,9 +4,9 @@ import os
 from numerical_tools import *
 
 
-def create_matlabdat(TAT, h, FFL, FFR):
-    main_path = os.path.dirname(os.path.realpath(__file__))  # Script folder
-    pass
+def print_acdata(ac) -> None:
+    attributes = vars(ac)
+    print('\n'.join("%s: %s" % item for item in attributes.items()))
 
 
 def correct_speed(velocity):
@@ -67,7 +67,7 @@ def ISA_calculator(h, R=287.058, g=9.80665):
 
 
 class AtmosConditions():
-    def __init__(self, m = 4000, Ws=60500, hp=1000, V0=200, p0=101325, rho0=1.225, T0=288.15, g=9.80665, R=287.058):
+    def __init__(self, m = 4000, Ws=60500, hp=1000, V0=100, p0=101325, rho0=1.225, T0=288.15, g=9.80665, R=287.058):
         """Class containing all atmospheric properties of the flight conditions. Changeable parameters are parameters
         ending with a 0. The class automatically updates all other flight parameters. """
         self.gamma = 1.4
@@ -255,14 +255,14 @@ class AtmosConditions():
 
 
 class FlightParams(AtmosConditions):
-    def __init__(self, hp=1000, V0=200, alpha0=0, th0=0, m=4000, Ws=60500, e=0.8, CD0=0.04, CLa=5.084, Cma=-0.5626,
+    def __init__(self, hp=1000, V0=100, alpha0=0, th0=0, m=4000, Ws=60500, e=0.8, CD0=0.04, CLa=5.084, Cma=-0.5626,
                  Cmde=-1.1642, S=30., Sh_multiply=0.2, lh=0.71 * 5.968, c=2.0569, b=15.911, bh=5.791, Vh_V=1,
                  ih=-2 * np.pi / 180, rho0=1.2250, T0=288.15, R=287.058, g=9.80665, KX2=0.019, KZ2=0.042, KXZ=0.002,
                  KY2=1.3925, Cm0=0.0297, CXu=-0.095, CXa=-0.4797, CXadot=0.0833, CXq=-0.2817, CXde=-0.0373,
                  CZu=-0.3762, CZa=-5.7434, CZadot=-0.0035, CZq=-5.6629, CZde=-0.6961, Cmu=0.0699, Cmadot=0.178,
                  Cmq=-8.7941, CmTc=-0.0064, CYb=-0.75, CYbdot=0, CYp=-0.0304, CYr=0.8495, CYda=-0.04, CYdr=0.23,
                  Clb=-0.1026, Clp=-0.7108, Clr=0.2376, Clda=-0.2309, Cldr=0.0344, Cnb=0.1348, Cnbdot=0, Cnp=-0.0602,
-                 Cnr=-0.2061, Cnda=-0.012, Cndr=-0.0939):
+                 Cnr=-0.2061, Cnda=-0.012, Cndr=-0.0939, numericalmodel=False):
 
         # Inherit the parameters gamma, g, R, m, ms, W, Ws, V0, p0, rho0, T0, hp, a, V, p, rho and T from the
         # atmospheric flight conditions class. All 'output' parameters (a, V, p, rho and T) are corrected and reduced.
@@ -423,8 +423,4 @@ class FlightParams(AtmosConditions):
 
 if __name__ == "__main__":
     ac = FlightParams()
-    print(ac.V)
-    print(ac.CL)
-    ac.V0 = 168
-    print(ac.V)
-    print(ac.CL)
+    print_acdata(ac)
