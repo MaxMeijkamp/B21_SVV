@@ -12,13 +12,14 @@ def create_matlabdat(TAT, h, FFL, FFR):
 def correct_speed(velocity):
     # Converts from indicated airspeed to calibrated airspeed. Input and output are consistent in units (if input is
     # in knots, output is in knots).
+    velocity = velocity * 1.94384449
     tableKIAS = np.append(np.linspace(80,275,40),277)
     tableKCAS = np.array([78, 83, 88, 93, 98, 103, 108, 113, 118, 123, 128, 133, 138, 143, 148, 153, 158, 163, 168, \
                           173, 178, 183, 188, 193, 198, 203, 208, 213, 218, 223, 228, 233, 238, 243, 248, 253, 258, \
                           263, 268, 273, 275])
     multipliers = tableKCAS/tableKIAS
     multipl_func = cont_spline(tableKIAS, multipliers)
-    return velocity * multipl_func(velocity).item()
+    return velocity * multipl_func(velocity).item() * 0.514444444
 
 
 def correct_mach(mach):

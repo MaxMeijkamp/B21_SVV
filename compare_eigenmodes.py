@@ -199,6 +199,7 @@ def Sym_2(t_start,t_end, ftis, ac: FlightParams):
 
 if __name__ == "__main__":
     ftis, units = get_ftis_data('FTISxprt-20200311_flight3.mat')
+    # ftis, units = get_ftis_data('matlab.mat')
     tstart = 55*60 # [s]
     tend = 57*60 # [s]
     fuel_used = ftis['lh_engine_FU']+ftis['rh_engine_FU']
@@ -215,7 +216,7 @@ if __name__ == "__main__":
     syss = sym_flight(ac)
     T = ftis['time'][(t >= tstart) & (t<tend)]
     U = ftis['delta_e'][(t >= tstart) & (t<tend)]*np.pi/180
-    U = np.ones_like(U)#*np.average(U)
+    # U = np.ones_like(U)#*np.average(U)
     X0 = np.array([0, 0, 0, 0])
     t, yout, xout = control.forced_response(syss, U=U, T=T, X0=X0)
     plot_response(T, yout[0, :], yout[1, :], yout[2, :], yout[3, :], "TAS [m/s]", "AOA [deg]", "Pitch angle [deg]", "Pitch rate [deg/s]")

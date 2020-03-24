@@ -60,7 +60,7 @@ def sym_flight(ac: FlightParams):
     C1s = np.matrix([[-2*ac.muc*ac.c/ac.V, 0 , 0 , 0],
                      [0 , (ac.CZadot -2*ac.muc)*ac.c/ac.V, 0 , 0],
                      [0 , 0 , -ac.c/ac.V , 0],
-                     [0, ac.Cmadot , 0 , -2*ac.muc*ac.KY2*ac.c/ac.V]])
+                     [0, ac.Cmadot*ac.c/ac.V , 0 , -2*ac.muc*ac.KY2*ac.c/ac.V]])
 
     C2s = np.matrix([[ac.CXu, ac.CXa , ac.CZ0 , ac.CXq],
                      [ac.CZu , ac.CZa, -ac.CX0 , ac.CZq + 2*ac.muc],
