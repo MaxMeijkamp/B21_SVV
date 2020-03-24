@@ -60,7 +60,7 @@ for i in range(7):
     F_e_star[i] = F_e[i]*W_s/W[i]
 
 #gravity shift -> new parameters
-delta_cg = mcg(867, 2, 2)[2] - mcg(845, 1, 2)[2]
+delta_cg = mcg(867, 2, 2)[2] - mcg(845, 0, 2)[2]
 t = 49*60+48
 ac.hp = 7408*0.3048
 delta_d_e = -0.6*pi/180
