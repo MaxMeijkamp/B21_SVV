@@ -121,17 +121,17 @@ def ac_fin(m=6000) -> FlightParams:
     CYda = 0
     CYdr = 0.2300
 
-    Clb = - 0.11
+    Clb = - 0.043
     Clp = - 0.55
     Clr = 0.088
-    Clda = -0.23088
+    Clda = -0.2309
     Cldr = 0.03440
 
     Cnb = 0.086
     Cnbdot = 0
-    Cnp = - 0.0097
+    Cnp =  0.06
     Cnr = - 0.15
-    Cnda = -0.0120
+    Cnda = -0.012
     Cndr = -0.0939
     return FlightParams(hp=hp0, V0=V0, alpha0=alpha0, th0=th0, m=m_cur, CD0=CD0, CLa=CLa, Cm0=Cmac, CXu=CXu, CXa=CXa,
                         CXadot=CXadot, CXq=CXq, CXde=CXde, CZu=CZu, CZa=CZa, CZadot=CZadot, CZq=CZq, CZde=CZde, Cmu=Cmu,

@@ -13,7 +13,7 @@ def plot_params(t, ys, sym=True) -> None:
     if sym:
         labels = ['u', 'alpha', 'theta', 'q']
     else:
-        labels = ['beta', 'phi', 'p', 'r']
+        labels = ['Sideslip angle', 'Roll angle', 'Roll rate', 'Yaw rate']
     plt.figure(4)
     plt.subplot(221)
     plt.plot(t, ys[0, :])
@@ -104,8 +104,9 @@ def asym_flight(ac: FlightParams):
     Aa = C1ainv*C2a
     Ba = C1ainv*C3a
     Ca = np.identity(4)
-    Da =np.zeros([4 , 2])
-
+    Ca[1,:] = Aa[1,:]
+    Da = np.zeros([4 , 2])
+    Da[1,:] = Ba[1,:]
     return ml.ss(Aa , Ba , Ca , Da)
 
 
@@ -120,15 +121,16 @@ if __name__ == "__main__":
     # U1[:,np.where(t1<0.5)] = 1.0
 
     # For symmetric flight
-    syss = sym_flight(aircraft)
-    inspect_sys(syss)
+    sysa = asym_flight(aircraft)
+    inspect_sys(sysa)
     # t, yout = control.impulse_response(syss)
     # plt.plot(t, yout[0, :])
     # plt.show()
     # inspect_sys(syss)
     # plot_response(syss, impulse=True)
     # plot_response(syss, step=True, T=t, U=0.0)
-    plot_response(syss, lsim=True, T=t, X0=np.zeros(4), U=U[0,:])
+    plot_response(sysa, lsim=True, T=t, X0=np.zeros(4), U=U, sym=False)
+    plot_response(sysa, step=True, T=t, X0=np.zeros(4), sym=False)
 
     # For asymmetric flight
     sysa = asym_flight(aircraft)

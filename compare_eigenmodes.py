@@ -44,15 +44,6 @@ def get_ftis_data(filename, ref=False):
         units[keys[i]] = pre_unit
     return ftis, units
 
-# Check Data
-#for i in range(49):
-#    print(i)
-#    print(dat['flightdata'][0][0][i][0])
-#   print('_________________')
-
-# Asymmetric Responses
-    # for Dutch Roll, Aperiodic Roll and Spiral
-
 
 def plot_response(t, data1, data2, data3, data4, label1, label2, label3, label4):
     f0 = plt.subplot(2, 2, 1)
@@ -78,127 +69,25 @@ def plot_response(t, data1, data2, data3, data4, label1, label2, label3, label4)
     return
 
 
-def Asym_2(t_start, t_end, ftis):
+def Asym_2(t_start, t_end, ftis, ac: FlightParams):
 
     # Gathering data
     t = ftis['time']
-    pitchr_list = ftis['Ahrs1_bPitchRate'][(t>t_start) & (t<t_end)]
-    rollr_list = ftis['Ahrs1_bRollRate'][(t>t_start) & (t<t_end)]
-    yawr_list = ftis['Ahrs1_bYawRate'][(t>t_start) & (t<t_end)]
-    ur_list = ftis['Ahrs1_bLongAcc'][(t>t_start) & (t<t_end)]
-    qr_list = ftis['Ahrs1_bLatAcc'][(t>t_start) & (t<t_end)]
-    rr_list = ftis['Ahrs1_bNormAcc'][(t>t_start) & (t<t_end)]
-    t_list = t[(t>t_start) & (t<t_end)]
+    TAS_list = ftis['Dadc1_tas'][(t>=t_start) & (t<t_end)]
+    roll_list = ftis['Ahrs1_Roll'][(t>=t_start) & (t<t_end)]*np.pi/180
+    rollr_list = ftis['Ahrs1_bRollRate'][(t>=t_start) & (t<t_end)]*np.pi/180
+    yawr_list = ftis['Ahrs1_bYawRate'][(t>=t_start) & (t<t_end)]*np.pi/180
+    roll_list = roll_list - np.average(roll_list)
+    rollr_list = (rollr_list-np.average(rollr_list))*ac.b*0.5/TAS_list[0]
+    yawr_list = (yawr_list-np.average(yawr_list))*ac.b*0.5/TAS_list[0]
+    t_list = t[(t>=t_start) & (t<t_end)]
 
     # Plotting figures for angle response
-    # plot_response(t_list, pitchr_list, rollr_list, , pitchr_list, "TAS [m/s]", "AOA [deg]", "Pitch angle [deg]", "Pitch rate [deg/s]")
+    plot_response(t_list, TAS_list, roll_list, rollr_list, yawr_list, "TAS [m/s]", "Roll angle [rad]", "Roll rate [rad/s]", "Yaw rate [rad/s]")
 
-
-def Asym_1(t_start, t_end, ftis):
-
-    # Gathering data
-    t = ftis['time']
-    pitchr_list = ftis['Ahrs1_bPitchRate'][(t>t_start) & (t<t_end)]
-    rollr_list = ftis['Ahrs1_bRollRate'][(t>t_start) & (t<t_end)]
-    yawr_list = ftis['Ahrs1_bYawRate'][(t>t_start) & (t<t_end)]
-    ur_list = ftis['Ahrs1_bLongAcc'][(t>t_start) & (t<t_end)]
-    qr_list = ftis['Ahrs1_bLatAcc'][(t>t_start) & (t<t_end)]
-    rr_list = ftis['Ahrs1_bNormAcc'][(t>t_start) & (t<t_end)]
-    t_list = t[(t>t_start) & (t<t_end)]
-    
-    # Plotting figures for angle response
-    fig, ax = plt.subplots()
-    f1 = plt.subplot(3, 1, 1)
-    plt.plot(t_list, pitchr_list)
-    plt.setp(f1.get_xticklabels(), visible=False)
-    plt.title('Pitch, Roll and Yaw Response')
-    plt.ylabel('Pitch Rate')
-    
-    f2 = plt.subplot(3, 1, 2)
-    plt.plot(t_list, rollr_list)
-    plt.setp(f2.get_xticklabels(), visible=False)
-    plt.ylabel('Roll Rate')
-    
-    f3 = plt.subplot(3, 1, 3)
-    plt.plot(t_list, yawr_list)
-    plt.setp(f3.get_xticklabels(), fontsize=6)
-    plt.ylabel('Yaw Rate')
-    plt.xlabel('Time [s]')
-    plt.show()
-    
-    # Plotting figures for  response
-    f1 = plt.subplot(3, 1, 1)
-    plt.plot(t_list, ur_list)
-    plt.setp(f1.get_xticklabels(), visible=False)
-    plt.title('u,q and r Response')
-    plt.ylabel('u Rate')
-    
-    f2 = plt.subplot(3, 1, 2)
-    plt.plot(t_list, qr_list)
-    plt.setp(f2.get_xticklabels(), visible=False)
-    plt.ylabel('q Rate')
-    
-    f3 = plt.subplot(3, 1, 3)
-    plt.plot(t_list, rr_list)
-    plt.setp(f3.get_xticklabels(), fontsize=6)
-    plt.xlabel('Time [s]')
-    plt.ylabel('r Rate')
-
-    ax.grid(True, which='both')
-    # plt.tight_layout()
-    plt.show()
-    return 
-
-#____________________________________________________________________________#
+#________________________________________________________________#
     
 # Symmetric response
-
-
-def Sym_1(t_start,t_end, ftis):
-
-    t = ftis['time']
-    pitchr_list = ftis['Ahrs1_bPitchRate'][(t > t_start) & (t < t_end)]
-    TAS_list = ftis['Dadc1_tas'][(t>t_start) & (t<t_end)]
-    ur_list = ftis['Ahrs1_bLongAcc'][(t>t_start) & (t<t_end)]
-    qr_list = ftis['Ahrs1_bLatAcc'][(t>t_start) & (t<t_end)]
-    elevator_list = ftis['delta_e'][(t>t_start) & (t<t_end)]
-    t_list = t[(t>t_start) & (t<t_end)]
-
-    # Plotting figures for angle response
-    fig, ax = plt.subplots()
-    f0 = plt.subplot(5, 1, 1)
-    plt.plot(t_list, elevator_list)
-    plt.setp(f0.get_xticklabels(), visible=False)
-    plt.title('Elevator Input')
-    plt.ylabel('Deflection Elevator')
-    
-    f1 = plt.subplot(5, 1, 2)
-    plt.plot(t_list, pitchr_list)
-    plt.setp(f1.get_xticklabels(), visible=False)
-    plt.title('Response')
-    plt.ylabel('Pitch Rate')
-    
-    f2 = plt.subplot(5, 1, 3)
-    plt.plot(t_list, TAS_list)
-    plt.setp(f2.get_xticklabels(), visible=False)
-    plt.ylabel('TAS')
-    
-    f3 = plt.subplot(5, 1, 4)
-    plt.plot(t_list, ur_list)
-    plt.setp(f3.get_xticklabels(), visible=False)
-    plt.ylabel('u Rate')
-    
-    f4 = plt.subplot(5, 1, 5)
-    plt.plot(t_list, qr_list)
-    plt.setp(f4.get_xticklabels(), fontsize=6)
-    plt.xlabel('Time [s]')
-    plt.ylabel('q Rate')
-
-    ax.grid(True, which='both')
-    # plt.tight_layout()
-    plt.show()
-    return
-
 
 def Sym_2(t_start,t_end, ftis, ac: FlightParams):
 
@@ -221,41 +110,41 @@ def Sym_2(t_start,t_end, ftis, ac: FlightParams):
 
 
 if __name__ == "__main__":
-    # ftis, units = get_ftis_data('FTISxprt-20200311_flight3.mat')
-    ftis, units = get_ftis_data('matlab.mat', ref=True)
-    tstart = 53*60+58 # [s]
-    tend = 57*60 # [s]
-    fuel_used = ftis['lh_engine_FU']+ftis['rh_engine_FU']
-    t = ftis['time']
-    W, M, X_cg = mcg(fuel_used[(t==tstart)].item(), 0,  1)
-    ac = ac_fin(m=W/9.80665)
-
-    # Phugoid
-    print('PHUGOID')
-    fig, ax = plt.subplots()
-    Sym_2(tstart, tend, ftis, ac)
-
-    syss = sym_flight(ac)
-
-    T = ftis['time'][(t >= tstart) & (t<tend)]
-    U = ftis['delta_e'][(t >= tstart) & (t<tend)]*np.pi/180
-    # U = np.ones_like(U)#*np.average(U)
-    # X0 = np.array([0, 0, ftis['Ahrs1_Pitch'][(t==tstart)].item()*np.pi/180,
-    #                ftis['Ahrs1_bPitchRate'][(t==tstart)].item()*ac.c/ftis['Dadc1_tas'][(t==tstart)].item()*np.pi/180])
-
-    X0 = np.array([0, 0, 0, ftis['Ahrs1_bPitchRate'][(t == tstart)].item() * ac.c / ftis['Dadc1_tas'][
-                       (t == tstart)].item() * np.pi / 180])
-
-    # X0 = np.array([0, 0, 0, 0])
-    t, yout, xout = control.forced_response(syss, U=U, T=T, X0=X0)
-    # yout[0, :] *= -4
-    # yout[1, :] *= 3
-    # yout[2, :] *= -2
-    # yout[3, :] *= -3
-    plot_response(T, yout[0, :]-np.average(yout[0, :]), yout[1, :]-np.average(yout[1, :]), yout[2, :]-np.average(yout[2, :]), yout[3, :], "TAS [m/s]", "AOA [rad]", "Pitch angle [rad]", "Pitch rate [rad/s]")
-
-    plt.tight_layout()
-    plt.show()
+    # # ftis, units = get_ftis_data('FTISxprt-20200311_flight3.mat')
+    # ftis, units = get_ftis_data('matlab.mat', ref=True)
+    # tstart = 53*60+58 # [s]
+    # tend = 57*60 # [s]
+    # fuel_used = ftis['lh_engine_FU']+ftis['rh_engine_FU']
+    # t = ftis['time']
+    # W, M, X_cg = mcg(fuel_used[(t==tstart)].item(), 0,  1)
+    # ac = ac_fin(m=W/9.80665)
+    #
+    # # Phugoid
+    # print('PHUGOID')
+    # fig, ax = plt.subplots()
+    # Sym_2(tstart, tend, ftis, ac)
+    #
+    # syss = sym_flight(ac)
+    #
+    # T = ftis['time'][(t >= tstart) & (t<tend)]
+    # U = ftis['delta_e'][(t >= tstart) & (t<tend)]*np.pi/180
+    # # U = np.ones_like(U)#*np.average(U)
+    # # X0 = np.array([0, 0, ftis['Ahrs1_Pitch'][(t==tstart)].item()*np.pi/180,
+    # #                ftis['Ahrs1_bPitchRate'][(t==tstart)].item()*ac.c/ftis['Dadc1_tas'][(t==tstart)].item()*np.pi/180])
+    #
+    # X0 = np.array([0, 0, 0, ftis['Ahrs1_bPitchRate'][(t == tstart)].item() * ac.c / ftis['Dadc1_tas'][
+    #                    (t == tstart)].item() * np.pi / 180])
+    #
+    # # X0 = np.array([0, 0, 0, 0])
+    # t, yout, xout = control.forced_response(syss, U=U, T=T, X0=X0)
+    # # yout[0, :] *= -4
+    # # yout[1, :] *= 3
+    # # yout[2, :] *= -2
+    # # yout[3, :] *= -3
+    # plot_response(T, yout[0, :]-np.average(yout[0, :]), yout[1, :]-np.average(yout[1, :]), yout[2, :]-np.average(yout[2, :]), yout[3, :], "TAS [m/s]", "AOA [rad]", "Pitch angle [rad]", "Pitch rate [rad/s]")
+    #
+    # plt.tight_layout()
+    # plt.show()
 
     # plt.plot(T,U)
     # plt.show()
@@ -308,4 +197,38 @@ if __name__ == "__main__":
     # Asym_1(53*60 +30,54*60, ftis)
     # print('SPIRAL')
     # Asym_1(60*60,65*60, ftis)
+    # ftis, units = get_ftis_data('FTISxprt-20200311_flight3.mat')
+    ftis, units = get_ftis_data('matlab.mat', ref=True)
+    tstart = 61*60+57 # [s]
+    tend = 62*60+20 # [s]
+    fuel_used = ftis['lh_engine_FU']+ftis['rh_engine_FU']
+    t = ftis['time']
+    W, M, X_cg = mcg(fuel_used[(t==tstart)].item(), 0,  1)
+    ac = ac_fin(m=W/9.80665)
 
+    # Phugoid
+    print('DUTCH ROLL')
+    fig, ax = plt.subplots()
+    Asym_2(tstart, tend, ftis, ac)
+
+    sysa = asym_flight(ac)
+
+    T = ftis['time'][(t >= tstart) & (t<tend)]
+    U = np.array([ftis['delta_a'][(t >= tstart) & (t<tend)]*np.pi/180, ftis['delta_r'][(t >= tstart) & (t<tend)]*np.pi/180])
+    # U = np.ones_like(U)#*np.average(U)
+    # X0 = np.array([0, 0, ftis['Ahrs1_Pitch'][(t==tstart)].item()*np.pi/180,
+    #                ftis['Ahrs1_bPitchRate'][(t==tstart)].item()*ac.c/ftis['Dadc1_tas'][(t==tstart)].item()*np.pi/180])
+
+    X0 = np.array([0, 0, 0, 0])
+
+    # X0 = np.array([0, 0, 0, 0])
+    t, yout, xout = control.forced_response(sysa, U=U, T=T, X0=X0)
+    # yout[0, :] *= -4
+    # yout[1, :] *= 3
+    # yout[2, :] *= -2
+    # yout[3, :] *= -3
+
+    plot_response(T, yout[0, :]-np.average(yout[0, :]), yout[1, :]-np.average(yout[1, :]), yout[2, :]-np.average(yout[2, :]), yout[3, :], "TAS [m/s]", "Roll angle [rad]", "Roll rate [rad/s]", "Yaw rate [rad/s]")
+
+    plt.tight_layout()
+    plt.show()
