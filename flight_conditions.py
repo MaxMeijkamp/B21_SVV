@@ -255,7 +255,7 @@ class AtmosConditions():
 
 
 class FlightParams(AtmosConditions):
-    def __init__(self, hp=1000, V0=100, alpha0=0, th0=0, m=4000, Ws=60500, e=0.8, CD0=0.04, CLa=5.084, Cma=-0.5626,
+    def __init__(self, hp=1000, V0=100, alpha0=6*np.pi/180, th0=10*np.pi/180, m=4000, Ws=60500, e=0.8, CD0=0.04, CLa=5.084, Cma=-0.5626,
                  Cmde=-1.1642, S=30., Sh_multiply=0.2, lh=0.71 * 5.968, c=2.0569, b=15.911, bh=5.791, Vh_V=1,
                  ih=-2 * np.pi / 180, rho0=1.2250, T0=288.15, R=287.058, g=9.80665, KX2=0.019, KZ2=0.042, KXZ=0.002,
                  KY2=1.3925, Cm0=0.0297, CXu=-0.095, CXa=-0.4797, CXadot=0.0833, CXq=-0.2817, CXde=-0.0373,
@@ -268,7 +268,7 @@ class FlightParams(AtmosConditions):
         # atmospheric flight conditions class. All 'output' parameters (a, V, p, rho and T) are corrected and reduced.
         super().__init__(m=m, Ws=Ws, hp=hp, V0=V0, rho0=rho0, T0=T0, g=g, R=R)
 
-        self.alpha0 =    alpha0             # angle of attack in the stationary flight condition [rad]
+        self._alpha0 =    alpha0             # angle of attack in the stationary flight condition [rad]
         self.th0    =    th0                # pitch angle in the stationary flight condition [rad]
 
         # aerodynamic properties
@@ -373,17 +373,29 @@ class FlightParams(AtmosConditions):
     def CZ0(self):
         return self._CZ0
 
+    @property
+    def alpha0(self):
+        return self._alpha0
+
     def _renew_stability_param(self):
         self._muc    = self.m / (self.rho * self.S * self.c)
         self._mub    = self.m / (self.rho * self.S * self.b)
 
         # Lift and drag coefficient
         self._CL_eig = 2 * self.W / (self.rho * self.Vtas * self.Vtas * self.S)               # Lift coefficient [ ]
-        self._CL = 2 * self.W / (self.rho * self.V * self.V * self.S)
-        self._CD = self.CD0+(self.CLa * self.alpha0)**2 / (np.pi * self.A * self.e) # Drag coefficient [ ]
+
+
+        self._CL = 2 * self.W / (self.rho0 * self.V * self.V * self.S)
+        self._CD = self.CD0+(self.CLa * self._alpha0)**2 / (np.pi * self.A * self.e) # Drag coefficient [ ]
+
 
         self._CX0    = self.W * np.sin(self.th0) / (0.5 * self.rho * self.V * self.V * self.S)
         self._CZ0    = -self.W * np.cos(self.th0) / (0.5 * self.rho * self.V * self.V * self.S)
+
+    @alpha0.setter
+    def alpha0(self, value):
+        self._alpha0 = value
+        self._renew_stability_param()
 
     @muc.setter
     def muc(self, value):

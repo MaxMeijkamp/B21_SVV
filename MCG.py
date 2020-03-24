@@ -23,7 +23,7 @@ def mcg(m_f, situation, unit):
     x_seat = np.array([131,131,170,150,214,214,251,251,288,288])
     if situation == 0:
         m_pax = 2.20462*np.array([80,102,68,0,76,70,73,82,62,90.5])
-    if situation == 1:
+    elif situation == 1:
         m_pax = np.zeros(10)
     else:
         m_pax = 2.20462*np.array([80,102,68,90.5,76,70,73,82,62,0])
@@ -33,6 +33,7 @@ def mcg(m_f, situation, unit):
     M_f = list_M_f[int((-m_f+m_bf)/100)] 
     
     # compute Moment and Weight
+    # W = lbs +
     W = sum(m_pax)+m_BEM+m_bf-m_f 
     M = sum(m_pax*x_seat) + m_BEM*x_BEM+M_f*100
     
@@ -43,6 +44,4 @@ def mcg(m_f, situation, unit):
     
     # compute x_c.g.
     X_cg = M/W
-    print(M_f)
-    print(m_f)
     return W, M, X_cg

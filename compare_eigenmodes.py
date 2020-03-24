@@ -222,7 +222,7 @@ if __name__ == "__main__":
     tend = 57*60 # [s]
     fuel_used = ftis['lh_engine_FU']+ftis['rh_engine_FU']
     t = ftis['time']
-    W, M, X_cg = mcg(ftis['time'][(t==tstart)].item(), fuel_used[(t==tstart)], 1)
+    W, M, X_cg = mcg(fuel_used[(t==tstart)].item(), 0,  1)
     ac = ac_B21(m=W/9.80665)
 
     # Phugoid
