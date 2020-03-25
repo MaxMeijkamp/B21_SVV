@@ -43,6 +43,4 @@ def mcg(m_f, situation, unit):
     
     # compute x_c.g.
     X_cg = M/W
-    print(M_f)
-    print(m_f)
     return W, M, X_cg
