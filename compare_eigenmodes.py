@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
     # # Short Period
     # print('SHORT PERIOD')
-    # Sym_2(52*60,53*60, ftis, ac)
+    #Sym_2(52*60,53*60, ftis, ac)
     # plt.show()
 
 
