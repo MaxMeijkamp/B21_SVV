@@ -131,11 +131,7 @@ def ac_B21(m=6000) -> FlightParams:
 if __name__ == "__main__":
     from MCG import *
     W, _, _ = mcg(946.8, 0, 1)
+    print(W/9.80665)
     ac = ac_B21(m=W/9.80665)
-    ac0 = FlightParams(m=ac.m, hp=ac.hp, V0=ac.V0, alpha0=ac.alpha0, th0=ac.th0)
-    acref = ac_ref(m=ac.m)
-    print_acdata(ac)
-    print()
-    print_acdata(ac0)
-    print()
-    print_acdata(acref)
+    inspect_sys(sym_flight(ac))
+    inspect_sys(asym_flight(ac))

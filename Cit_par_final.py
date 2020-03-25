@@ -7,6 +7,7 @@ Created on Mon Mar 23 09:46:36 2020
 
 from numpy import *
 from flight_conditions import *
+from System_response import *
 
 # Citation 550 - Linear simulation
 
@@ -143,3 +144,5 @@ if __name__ == "__main__":
     from MCG import *
     W, _, _ = mcg(946.8, 0, 1)
     ac = ac_fin(m=W/9.80665)
+    inspect_sys(sym_flight(ac))
+    inspect_sys(asym_flight(ac))

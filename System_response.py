@@ -7,6 +7,9 @@ import control.matlab as ml
 import control
 import matplotlib.pyplot as plt
 from flight_conditions import *
+from Cit_par_ref import *
+from Cit_par_B21 import *
+from Cit_par_final import *
 
 
 def plot_params(t, ys, sym=True) -> None:
@@ -112,28 +115,33 @@ def asym_flight(ac: FlightParams):
 
 if __name__ == "__main__":
     # Define flying aircraft with default parameters
-    aircraft = FlightParams(m=6000)
+    from MCG import *
+    W, _, _ = mcg(946.8, 0, 1)
+    aircraft = ac_ref(m=W/9.80665)
+    aircraft2 = ac_B21(m=W/9.80665)
 
     # Define input and time-line for reponse
-    t = np.arange(0, 10.01, 0.01)
+    t = np.arange(0, 100.01, 0.01)
     U = np.zeros((2,t.size))
-    U[0,np.where(t<5.)] = np.ones_like(np.where(t<5.))
+    U[0,np.where(t<5.)] = np.zeros_like(np.where(t<5.))
     # U1[:,np.where(t1<0.5)] = 1.0
 
     # For symmetric flight
-    sysa = asym_flight(aircraft)
-    inspect_sys(sysa)
+    syssref = sym_flight(aircraft)
+    syssb21 = sym_flight(aircraft2)
     # t, yout = control.impulse_response(syss)
     # plt.plot(t, yout[0, :])
     # plt.show()
     # inspect_sys(syss)
     # plot_response(syss, impulse=True)
     # plot_response(syss, step=True, T=t, U=0.0)
-    plot_response(sysa, lsim=True, T=t, X0=np.zeros(4), U=U, sym=False)
-    plot_response(sysa, step=True, T=t, X0=np.zeros(4), sym=False)
+    # plot_response(syssref, lsim=True, T=t, X0=np.zeros(4), U=U[1,:])
+    plot_response(syssref, lsim=True, T=t, X0=np.array([0.1, 0, 0, 0]))
+    # plot_response(syssb21, lsim=True, T=t, X0=np.zeros(4), U=U[1, :])
+    # plot_response(syssb21, step=True, impulse=True, T=t, X0=np.zeros(4))
 
     # For asymmetric flight
-    sysa = asym_flight(aircraft)
+    # sysa = asym_flight(aircraft)
     # plot_response(sysa, impulse=True, T=t, U=U, sym=False)
     # plot_response(sysa, lsim=True, T=t, X0=np.zeros(4), U=U, sym=False)
 

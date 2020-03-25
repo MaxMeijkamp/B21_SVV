@@ -112,12 +112,12 @@ def Sym_2(t_start,t_end, ftis, ac: FlightParams):
 if __name__ == "__main__":
     # # ftis, units = get_ftis_data('FTISxprt-20200311_flight3.mat')
     # ftis, units = get_ftis_data('matlab.mat', ref=True)
-    # tstart = 53*60+58 # [s]
-    # tend = 57*60 # [s]
+    # tstart = 60*60+30# [s]
+    # tend = 61*60-18# [s]
     # fuel_used = ftis['lh_engine_FU']+ftis['rh_engine_FU']
     # t = ftis['time']
     # W, M, X_cg = mcg(fuel_used[(t==tstart)].item(), 0,  1)
-    # ac = ac_fin(m=W/9.80665)
+    # ac = ac_ref(m=W/9.80665)
     #
     # # Phugoid
     # print('PHUGOID')
@@ -199,12 +199,12 @@ if __name__ == "__main__":
     # Asym_1(60*60,65*60, ftis)
     # ftis, units = get_ftis_data('FTISxprt-20200311_flight3.mat')
     ftis, units = get_ftis_data('matlab.mat', ref=True)
-    tstart = 61*60+57 # [s]
-    tend = 62*60+20 # [s]
+    tstart = 62*60+47 # [s]
+    tend = tstart+20 # [s]
     fuel_used = ftis['lh_engine_FU']+ftis['rh_engine_FU']
     t = ftis['time']
     W, M, X_cg = mcg(fuel_used[(t==tstart)].item(), 0,  1)
-    ac = ac_fin(m=W/9.80665)
+    ac = ac_ref(m=W/9.80665)
 
     # Phugoid
     print('DUTCH ROLL')
